@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 12,
+	"VersionName": "1.0",
+	"FriendlyName": "Extended NWheelVehicle",
+	"Description": "Integration async tick of simulation for NWheelVehicle",
+	"Category": "Physics",
+	"CreatedBy": "Alexander",
+	"CreatedByURL": "https://github.com/AlexanderZhmurkin/ExtendedAsyncTick",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": false,
+	"Installed": false,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Modules": [
+		{
+			"Name": "ExtendedAsyncPawn",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault"
+		}
+	]
+}
