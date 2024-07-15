@@ -34,59 +34,73 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "Advanced Tick"))
 	void AdvancedTick(float DeltaTime, float SimTime);
 
-	/** Add a Force to this AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	void AddForce(UPrimitiveComponent* Component, FVector Force, bool bAccelChange = false);
-	/** Add a Force at a particular position to this AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	void AddForceAtPosition(UPrimitiveComponent* Component, FVector Force, FVector Position, bool bIsLocalForce = false);
-	/** Add a Torque to this AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	void AddTorque(UPrimitiveComponent* Component, FVector Torque, bool bAccelChange = false);
-	/** Add an Impulse to this AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	void AddImpulse(UPrimitiveComponent* Component, FVector Impulse, bool bVelChange);
-	/** Add an Impulse to this AdvancedVehiclePawn and a particular world position */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	void AddImpulseAtPosition(UPrimitiveComponent* Component, FVector Impulse, FVector Position);
-	/** Add an Angular impulse in Rad to this AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	void AddAngularImpulseInRadians(UPrimitiveComponent* Component, FVector Impulse, bool bAccelChange = false);
-	/** Add an Angular impulse in Degrees to this AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	void AddAngularImpulseInDegrees(UPrimitiveComponent* Component, FVector Impulse, bool bAccelChange = false);
-	/** Add an Transform to this AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	FTransform GetVehicleTransform(UPrimitiveComponent* Component) const;
-	/** For AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	FVector GetLinearVelocity(UPrimitiveComponent* Component) const;
-	/** For AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	FVector GetAngularVelocity(UPrimitiveComponent* Component) const;
-	/** For AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	void SetLinearVelocity(UPrimitiveComponent* Component, FVector Velocity, bool bAddToCurrent);
-	/** For AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	void SetAngularVelocityInRadians(UPrimitiveComponent* Component, FVector AngVelocity, bool bAddToCurrent);
-	/** For AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	void SetAngularVelocityInDegrees(UPrimitiveComponent* Component, FVector AngVelocity, bool bAddToCurrent);
-	/** For AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	void SetWorldLocation(USceneComponent* Component, FVector Location);
-	/** For AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	void SetWorldRotation(UPrimitiveComponent* Component, FRotator Rotation);
-	/** For AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	void SetWorldLocationAndRotation(UPrimitiveComponent* Component, FVector Location, FRotator Rotation);
-	/** For AdvancedVehiclePawn */
-	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn")
-	FVector GetLinearVelocityAtPoint(UPrimitiveComponent* Component, FVector Point) const;
+	/**
+	 *	Add a force to a single rigid body.
+	 *  This is like a 'thruster'. Good for adding a burst over some (non zero) time. Should be called every frame for the duration of the force.
+	 *
+	 *	@param	Force		 Force vector to apply. Magnitude indicates strength of force.
+	 *  @param  bAccelChange If true, Force is taken as a change in acceleration instead of a physical force (i.e. mass will have no effect).
+	 */
+	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn|Physics")
+	void AddForce(const UPrimitiveComponent* InComponent, FVector Force, bool bAccelChange = false);
+
+	/**
+	 *	Add a force to a single rigid body at a particular location in world space.
+	 *  This is like a 'thruster'. Good for adding a burst over some (non zero) time. Should be called every frame for the duration of the force.
+	 *
+	 *	@param Force			Force vector to apply. Magnitude indicates strength of force.
+	 *	@param Location			Location to apply force, in world space.
+	 *	@param bIsLocalForce	If a SkeletalMeshComponent, name of body to apply force to. 'None' indicates root body.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn|Physics")
+	void AddForceAtLocation(const UPrimitiveComponent* InComponent, FVector Force, FVector Position, bool bIsLocalForce = false);
+
+	/**
+	 *	Add a torque to a single rigid body.
+	 *	@param Torque		Torque to apply. Direction is axis of rotation and magnitude is strength of torque.
+	 *	@param BoneName		If a SkeletalMeshComponent, name of body to apply torque to. 'None' indicates root body.
+	 *  @param bAccelChange If true, Torque is taken as a change in angular acceleration instead of a physical torque (i.e. mass will have no effect).
+	 */
+	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn|Physics")
+	void AddTorque(const UPrimitiveComponent* InComponent, FVector Torque, bool bAccelChange = false);
+
+	/**
+	 *	Add an impulse to a single rigid body. Good for one time instant burst.
+	 *
+	 *	@param	Impulse		Magnitude and direction of impulse to apply.
+	 *	@param	BoneName	If a SkeletalMeshComponent, name of body to apply impulse to. 'None' indicates root body.
+	 *	@param	bVelChange	If true, the Strength is taken as a change in velocity instead of an impulse (ie. mass will have no effect).
+	 */
+	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn|Physics")
+	void AddImpulse(const UPrimitiveComponent* InComponent, FVector Impulse, bool bVelChange = false);
+
+	/**
+	 *	Add an impulse to a single rigid body at a specific location. 
+	 *
+	 *	@param	Impulse		Magnitude and direction of impulse to apply.
+	 *	@param	Location	Point in world space to apply impulse at.
+	 *	@param	BoneName	If a SkeletalMeshComponent, name of bone to apply impulse to. 'None' indicates root body.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn|Physics")
+	void AddImpulseAtLocation(const UPrimitiveComponent* InComponent, FVector Impulse, FVector Position);
+
+	/** Get the current component-to-world transform for this component */
+	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn|Physics", meta = (DisplayName = "Get World Transform"))
+	FTransform GetPrimitiveWorldTransform(const UPrimitiveComponent* InComponent) const;
+
+	/** 
+	 *	Get the linear velocity of a single body. 
+	 */
+	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn|Physics")	
+	FVector GetLinearVelocity(const UPrimitiveComponent* InComponent);
+
+	/**
+	*	Get the linear velocity of a point on a single body.
+	*	@param Point			Point is specified in world space.
+	*/
+	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn|Physics")
+	FVector GetLinearVelocityAtPoint(const UPrimitiveComponent* InComponent, FVector Point);
 
 private:
-	static Chaos::FRigidBodyHandle_Internal* GetInternalHandle(UPrimitiveComponent* Component);
 	FManagerAsyncCallback* AsyncCallback;
 };
