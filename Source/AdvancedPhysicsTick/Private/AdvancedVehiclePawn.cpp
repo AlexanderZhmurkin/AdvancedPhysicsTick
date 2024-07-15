@@ -30,214 +30,167 @@ void AAdvancedVehiclePawn::TickAsync(float DeltaTime, float SimTime)
 
 void AAdvancedVehiclePawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (!AsyncCallback) return;
-	GetWorld()->GetPhysicsScene()->GetSolver()->UnregisterAndFreeSimCallbackObject_External(AsyncCallback);
-	AsyncCallback = nullptr;
+	Super::EndPlay(EndPlayReason);
+
+	if (AsyncCallback)
+	{
+		GetWorld()->GetPhysicsScene()->GetSolver()->UnregisterAndFreeSimCallbackObject_External(AsyncCallback);
+		AsyncCallback = nullptr;
+	}
 }
 
-void AAdvancedVehiclePawn::AddForce(UPrimitiveComponent* Component, FVector Force, bool bAccelChange)
+void AAdvancedVehiclePawn::AddForce(const UPrimitiveComponent* InComponent, FVector Force, bool bAccelChange)
 {
-	if (Chaos::FRigidBodyHandle_Internal* RigidHandle = GetInternalHandle(Component))
+	if (FPhysicsActorHandle ActorHandle = InComponent->GetBodyInstance()->ActorHandle)
 	{
-		if (bAccelChange)
+		if (IsInGameThread()) return;
+		if (Chaos::FRigidBodyHandle_Internal* RigidHandle = ActorHandle->GetPhysicsThreadAPI())
 		{
-			const float RigidMass = RigidHandle->M();
-			const Chaos::FVec3 Acceleration = Force * RigidMass;
-			RigidHandle->AddForce(Acceleration, false);
-		}
-		else
-		{
-			RigidHandle->AddForce(Force, false);
-		}
-	}
-}
-
-void AAdvancedVehiclePawn::AddForceAtPosition(UPrimitiveComponent* Component, FVector Force, FVector Position, bool bIsLocalForce)
-{
-	if (Chaos::FRigidBodyHandle_Internal* RigidHandle = GetInternalHandle(Component))
-	{
-		const Chaos::FVec3 WorldCOM = Chaos::FParticleUtilitiesGT::GetCoMWorldPosition(RigidHandle);
-		const Chaos::FVec3 WorldTorque = Chaos::FVec3::CrossProduct(Position - WorldCOM, Force);
-		RigidHandle->AddForce(Force, false);
-		RigidHandle->AddTorque(WorldTorque, false);
-	}
-}
-
-void AAdvancedVehiclePawn::AddTorque(UPrimitiveComponent* Component, FVector Torque, bool bAccelChange)
-{
-	if (Chaos::FRigidBodyHandle_Internal* RigidHandle = GetInternalHandle(Component))
-	{
-		if (bAccelChange) RigidHandle->AddTorque(Chaos::FParticleUtilitiesXR::GetWorldInertia(RigidHandle) * Torque, false);
-		else RigidHandle->AddTorque(Torque, false);
-	}
-}
-
-void AAdvancedVehiclePawn::AddImpulse(UPrimitiveComponent* Component, FVector Impulse, bool bVelChange)
-{
-	if (Chaos::FRigidBodyHandle_Internal* RigidHandle = GetInternalHandle(Component))
-	{
-		if (bVelChange) RigidHandle->SetLinearImpulse(RigidHandle->LinearImpulse() + RigidHandle->M() * Impulse, false);
-		else RigidHandle->SetLinearImpulse(RigidHandle->LinearImpulse() + Impulse, false);
-	}
-}
-
-void AAdvancedVehiclePawn::AddImpulseAtPosition(UPrimitiveComponent* Component, FVector Impulse, const FVector Position)
-{
-	if (Chaos::FRigidBodyHandle_Internal* RigidHandle = GetInternalHandle(Component))
-	{
-		const Chaos::FVec3 WorldCOM = Chaos::FParticleUtilitiesGT::GetCoMWorldPosition(RigidHandle);
-		const Chaos::FVec3 AngularImpulse = Chaos::FVec3::CrossProduct(Position - WorldCOM, Impulse);
-		RigidHandle->SetLinearImpulse(RigidHandle->LinearImpulse() + Impulse, false);
-		RigidHandle->SetAngularImpulse(RigidHandle->AngularImpulse() + AngularImpulse, false);
-	}
-}
-
-void AAdvancedVehiclePawn::AddAngularImpulseInRadians(UPrimitiveComponent* Component, FVector Impulse, bool bAccelChange)
-{
-	if (Chaos::FRigidBodyHandle_Internal* RigidHandle = GetInternalHandle(Component))
-	{
-		if (bAccelChange)
-		{
-			const Chaos::FMatrix33 WorldI = Chaos::FParticleUtilitiesXR::GetWorldInertia(RigidHandle);
-			RigidHandle->SetAngularImpulse(RigidHandle->AngularImpulse() + (WorldI * Impulse), false);
-		}
-		else RigidHandle->SetAngularImpulse(RigidHandle->AngularImpulse() + Impulse, false);
-	}
-}
-
-void AAdvancedVehiclePawn::AddAngularImpulseInDegrees(UPrimitiveComponent* Component, FVector Impulse, bool bAccelChange)
-{
-	AddAngularImpulseInRadians(Component, FMath::DegreesToRadians(Impulse), bAccelChange);
-}
-
-FTransform AAdvancedVehiclePawn::GetVehicleTransform(UPrimitiveComponent* Component) const
-{
-	if (const Chaos::FRigidBodyHandle_Internal* RigidHandle = GetInternalHandle(Component))
-	{
-		const Chaos::FRigidTransform3 WorldCOM = Chaos::FParticleUtilitiesGT::GetActorWorldTransform(RigidHandle);
-		return WorldCOM;
-	}
-	return Component ? Component->GetComponentTransform() : FTransform();
-}
-
-FVector AAdvancedVehiclePawn::GetLinearVelocity(UPrimitiveComponent* Component) const
-{
-	if (const Chaos::FRigidBodyHandle_Internal* RigidHandle = GetInternalHandle(Component))
-	{
-		return RigidHandle->V();
-	}
-	return FVector::ZeroVector;
-}
-
-FVector AAdvancedVehiclePawn::GetAngularVelocity(UPrimitiveComponent* Component) const
-{
-	if (const Chaos::FRigidBodyHandle_Internal* RigidHandle = GetInternalHandle(Component))
-	{
-		return RigidHandle->W();
-	}
-	return FVector::ZeroVector;
-}
-
-void AAdvancedVehiclePawn::SetLinearVelocity(UPrimitiveComponent* Component, FVector Velocity, bool bAddToCurrent)
-{
-	if (Chaos::FRigidBodyHandle_Internal* RigidHandle = GetInternalHandle(Component))
-	{
-		if (bAddToCurrent)
-		{
-			RigidHandle->SetV(RigidHandle->V() + Velocity);
-		}
-		else
-		{
-			RigidHandle->SetV(Velocity);
-		}
-	}
-}
-
-void AAdvancedVehiclePawn::SetAngularVelocityInRadians(UPrimitiveComponent* Component, FVector AngVelocity, bool bAddToCurrent)
-{
-	if (Chaos::FRigidBodyHandle_Internal* RigidHandle = GetInternalHandle(Component))
-	{
-		if (bAddToCurrent)
-		{
-			RigidHandle->SetW(RigidHandle->W() + AngVelocity);
-		}
-		else
-		{
-			RigidHandle->SetW(AngVelocity);
-		}
-	}
-}
-
-void AAdvancedVehiclePawn::SetAngularVelocityInDegrees(UPrimitiveComponent* Component, FVector AngVelocity, bool bAddToCurrent)
-{
-	SetAngularVelocityInRadians(Component, FMath::DegreesToRadians(AngVelocity), bAddToCurrent);
-}
-
-void AAdvancedVehiclePawn::SetWorldLocation(USceneComponent* Component, FVector Location)
-{
-	if (Component)
-	{
-		if (UPrimitiveComponent* PrimitiveComponent = Cast<UPrimitiveComponent>(Component))
-		{
-			if (Chaos::FRigidBodyHandle_Internal* RigidHandle = GetInternalHandle(PrimitiveComponent))
+			if (ensure(RigidHandle))
 			{
-				const Chaos::FVec3 P = Location - RigidHandle->R().RotateVector(RigidHandle->CenterOfMass());
-				RigidHandle->SetX(P);
+				if (bAccelChange)
+				{
+					const float RigidMass = RigidHandle->M();
+					const Chaos::FVec3 Acceleration = Force * RigidMass;
+					RigidHandle->AddForce(Acceleration, false);
+				}
+				else RigidHandle->AddForce(Force, false);
 			}
 		}
-		else Component->SetWorldLocation(Location);
 	}
 }
 
-void AAdvancedVehiclePawn::SetWorldRotation(UPrimitiveComponent* Component, FRotator Rotation)
+void AAdvancedVehiclePawn::AddForceAtLocation(const UPrimitiveComponent* InComponent, FVector Force, FVector Position, bool bIsLocalForce)
 {
-	if (Chaos::FRigidBodyHandle_Internal* RigidHandle = GetInternalHandle(Component))
+	if (FPhysicsActorHandle ActorHandle = InComponent->GetBodyInstance()->ActorHandle)
 	{
-		const Chaos::FRotation3 Q = Rotation.Quaternion() * RigidHandle->RotationOfMass().Inverse();
-		RigidHandle->SetR(Q);
-	}
-}
-
-void AAdvancedVehiclePawn::SetWorldLocationAndRotation(UPrimitiveComponent* Component, FVector Location, FRotator Rotation)
-{
-	if (Chaos::FRigidBodyHandle_Internal* RigidHandle = GetInternalHandle(Component))
-	{
-		const Chaos::FRotation3 Q = Rotation.Quaternion() * RigidHandle->RotationOfMass().Inverse();
-		const Chaos::FVec3 P = Location - Q.RotateVector(RigidHandle->CenterOfMass());
-		RigidHandle->SetR(Q);
-		RigidHandle->SetX(P);
-	}
-}
-
-FVector AAdvancedVehiclePawn::GetLinearVelocityAtPoint(UPrimitiveComponent* Component, FVector Point) const
-{
-	if (Chaos::FRigidBodyHandle_Internal* RigidHandle = GetInternalHandle(Component))
-	{
-		if (ensure(RigidHandle->CanTreatAsKinematic()))
+		if (IsInGameThread()) return;
+		if (Chaos::FRigidBodyHandle_Internal* RigidHandle = ActorHandle->GetPhysicsThreadAPI())
 		{
-			const bool bIsRigid = RigidHandle->CanTreatAsRigid();
-			const Chaos::FVec3 COM = bIsRigid ? Chaos::FParticleUtilitiesGT::GetCoMWorldPosition(RigidHandle) : static_cast<Chaos::FVec3>(Chaos::FParticleUtilitiesGT::GetActorWorldTransform(RigidHandle).GetTranslation());
-			const Chaos::FVec3 Diff = Point - COM;
-			return RigidHandle->V() - Chaos::FVec3::CrossProduct(Diff, RigidHandle->W());
+			if (ensure(RigidHandle))
+			{
+				const Chaos::FVec3 WorldCOM = Chaos::FParticleUtilitiesGT::GetCoMWorldPosition(RigidHandle);
+				const Chaos::FVec3 WorldTorque = Chaos::FVec3::CrossProduct(Position - WorldCOM, Force);
+				RigidHandle->AddForce(Force, false);
+				RigidHandle->AddTorque(WorldTorque, false);
+			}
+		}
+	}
+}
+
+void AAdvancedVehiclePawn::AddTorque(const UPrimitiveComponent* InComponent, FVector Torque, bool bAccelChange)
+{
+	if (FPhysicsActorHandle ActorHandle = InComponent->GetBodyInstance()->ActorHandle)
+	{
+		if (IsInGameThread()) return;
+		if (Chaos::FRigidBodyHandle_Internal* RigidHandle = ActorHandle->GetPhysicsThreadAPI())
+		{
+			if (ensure(RigidHandle))
+			{
+				if (bAccelChange) RigidHandle->AddTorque(Chaos::FParticleUtilitiesXR::GetWorldInertia(RigidHandle) * Torque, false);
+				else RigidHandle->AddTorque(Torque, false);
+			}
+		}
+	}
+}
+
+void AAdvancedVehiclePawn::AddImpulse(const UPrimitiveComponent* InComponent, FVector Impulse, bool bVelChange)
+{
+	if (FPhysicsActorHandle ActorHandle = InComponent->GetBodyInstance()->ActorHandle)
+	{
+		if (IsInGameThread()) return;
+		if (Chaos::FRigidBodyHandle_Internal* RigidHandle = ActorHandle->GetPhysicsThreadAPI())
+		{
+			if (ensure(RigidHandle))
+			{
+				if (bVelChange) RigidHandle->SetLinearImpulse(RigidHandle->LinearImpulse() + RigidHandle->M() * Impulse, false);
+				else RigidHandle->SetLinearImpulse(RigidHandle->LinearImpulse() + Impulse, false);
+			}
+		}
+	}
+}
+
+void AAdvancedVehiclePawn::AddImpulseAtLocation(const UPrimitiveComponent* InComponent, FVector Impulse, FVector Position)
+{
+	if (FPhysicsActorHandle ActorHandle = InComponent->GetBodyInstance()->ActorHandle)
+	{
+		if (IsInGameThread()) return;
+		if (Chaos::FRigidBodyHandle_Internal* RigidHandle = ActorHandle->GetPhysicsThreadAPI())
+		{
+			if (ensure(RigidHandle))
+			{
+				const Chaos::FVec3 WorldCOM = Chaos::FParticleUtilitiesGT::GetCoMWorldPosition(RigidHandle);
+				const Chaos::FVec3 AngularImpulse = Chaos::FVec3::CrossProduct(Position - WorldCOM, Impulse);
+				RigidHandle->SetLinearImpulse(RigidHandle->LinearImpulse() + Impulse, false);
+				RigidHandle->SetAngularImpulse(RigidHandle->AngularImpulse() + AngularImpulse, false);
+			}
+		}
+	}
+}
+
+FTransform AAdvancedVehiclePawn::GetPrimitiveWorldTransform(const UPrimitiveComponent* InComponent) const
+{
+	if (FPhysicsActorHandle ActorHandle = InComponent->GetBodyInstance()->ActorHandle)
+	{
+		if (!IsInGameThread())
+		{
+			if (Chaos::FRigidBodyHandle_Internal* RigidHandle = ActorHandle->GetPhysicsThreadAPI())
+			{
+				if (ensure(RigidHandle)) return FTransform(RigidHandle->R(), RigidHandle->X());
+			}
+		}
+		else
+		{
+			Chaos::FRigidBodyHandle_External& RigidHandle = ActorHandle->GetGameThreadAPI();
+			return FTransform(RigidHandle.R(), RigidHandle.X());
+		}
+	}
+	return FTransform();
+}
+
+FVector AAdvancedVehiclePawn::GetLinearVelocity(const UPrimitiveComponent* InComponent)
+{
+	if (FPhysicsActorHandle ActorHandle = InComponent->GetBodyInstance()->ActorHandle)
+	{
+		if (!IsInGameThread())
+		{
+			if (Chaos::FRigidBodyHandle_Internal* RigidHandle = ActorHandle->GetPhysicsThreadAPI())
+			{
+				if (ensure(RigidHandle)) return RigidHandle->V();
+			}
+		}
+		else
+		{
+			Chaos::FRigidBodyHandle_External& RigidHandle = ActorHandle->GetGameThreadAPI();
+			return RigidHandle.V();
 		}
 	}
 	return FVector::ZeroVector;
 }
 
-Chaos::FRigidBodyHandle_Internal* AAdvancedVehiclePawn::GetInternalHandle(UPrimitiveComponent* Component)
+FVector AAdvancedVehiclePawn::GetLinearVelocityAtPoint(const UPrimitiveComponent* InComponent, FVector Point)
 {
-	if (IsValid(Component))
+	if (FPhysicsActorHandle ActorHandle = InComponent->GetBodyInstance()->ActorHandle)
 	{
-		if (const FBodyInstance* BodyInstance = Component->GetBodyInstance())
+		if (!IsInGameThread())
 		{
-			if (const auto Handle = BodyInstance->ActorHandle)
+			if (Chaos::FRigidBodyHandle_Internal* RigidHandle = ActorHandle->GetPhysicsThreadAPI())
 			{
-				if (Chaos::FRigidBodyHandle_Internal* RigidHandle = Handle->GetPhysicsThreadAPI())
+				if (ensure(RigidHandle))
 				{
-					return RigidHandle;
+					const Chaos::FVec3 COM = RigidHandle->X() + RigidHandle->R() * RigidHandle->CenterOfMass();
+					const Chaos::FVec3 Diff = Point - COM;
+					return RigidHandle->V() - Chaos::FVec3::CrossProduct(Diff, RigidHandle->W());
 				}
 			}
 		}
+		else
+		{
+			Chaos::FRigidBodyHandle_External& RigidHandle = ActorHandle->GetGameThreadAPI();
+			const Chaos::FVec3 COM = RigidHandle.X() + RigidHandle.R() * RigidHandle.CenterOfMass();
+			const Chaos::FVec3 Diff = Point - COM;
+			return RigidHandle.V() - Chaos::FVec3::CrossProduct(Diff, RigidHandle.W());
+		}
 	}
-	return nullptr;
+	return FVector::ZeroVector;
 }
