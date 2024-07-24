@@ -194,3 +194,23 @@ FVector AAdvancedVehiclePawn::GetLinearVelocityAtPoint(const UPrimitiveComponent
 	}
 	return FVector::ZeroVector;
 }
+
+FVector AAdvancedVehiclePawn::GetPrimitiveCOM(const UPrimitiveComponent* InComponent) const
+{
+	if (FPhysicsActorHandle ActorHandle = InComponent->GetBodyInstance()->ActorHandle)
+	{
+		if (!IsInGameThread())
+		{
+			if (Chaos::FRigidBodyHandle_Internal* RigidHandle = ActorHandle->GetPhysicsThreadAPI())
+			{
+				if (ensure(RigidHandle)) return RigidHandle->X() + RigidHandle->R() * RigidHandle->CenterOfMass();
+			}
+		}
+		else
+		{
+			Chaos::FRigidBodyHandle_External& RigidHandle = ActorHandle->GetGameThreadAPI();
+			return RigidHandle.X() + RigidHandle.R() * RigidHandle.CenterOfMass();
+		}
+	}
+	return FVector::ZeroVector;
+}
