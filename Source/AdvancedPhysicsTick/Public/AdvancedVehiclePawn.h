@@ -101,6 +101,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn|Physics")
 	FVector GetLinearVelocityAtPoint(const UPrimitiveComponent* InComponent, FVector Point);
 
+	/*
+	*	Get the center of mass in primitive component 
+	*/
+	UFUNCTION(BlueprintCallable, Category = "AdvancedVehiclePawn|Physics", meta = (DisplayName = "Get Center of Mass"))
+	FVector GetPrimitiveCOM(const UPrimitiveComponent* InComponent) const;
+
 private:
 	FManagerAsyncCallback* AsyncCallback;
 };
