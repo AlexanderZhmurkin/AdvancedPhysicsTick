@@ -1,8 +1,6 @@
 # Advanced Physics Tick
 
-<div align="center">
-![Alt text](Resources/Docs/Banner.png)
-</div>
+![Banner](Resources/Docs/Banner.png)
 
 Плагин Advanced Physics Tick для Unreal Engine 5 упрощает работу с асинхронной физикой Chaos, обеспечивающий улучшенный контроль над физическим моделированием.
 
@@ -58,9 +56,7 @@ virtual void TickAsync(float DeltaTime, float SimTime) override;
     p.AdvancedPawn.DrawDebugLinesSize
     ```
     
-<div align="center">
-![Alt text](Resources/Docs/Car.png)
-</div>
+![CarsPNG](Resources/Docs/Car.png)
 
 ### Стат команды
 
@@ -70,9 +66,8 @@ virtual void TickAsync(float DeltaTime, float SimTime) override;
 stat AdvancedManager
 ```
 
-<div align="center">
-![Alt text](Resources/Docs/Stat.png)
-</div>
+![Stat](Resources/Docs/Stat.png)
+
 
 ## Поиск неисправностей
 
