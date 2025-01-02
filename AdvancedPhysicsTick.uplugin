@@ -3,7 +3,7 @@
 	"Version": 12,
 	"VersionName": "1.1",
 	"FriendlyName": "Advanced Physics Tick",
-	"Description": "Простая и удобная интеграция асинхронных тиков для ChaosPhysics|Substepping",
+	"Description": "Простая и удобная интеграция асинхронных тиков для Chaos",
 	"Category": "Physics",
 	"CreatedBy": "Alexander",
 	"CreatedByURL": "https://github.com/AlexanderZhmurkin/AdvancedPhysicsTick",
@@ -16,9 +16,14 @@
 	"IsExperimentalVersion": false,
 	"Modules": [
 		{
-			"Name": "AdvancedPhysicsTick",
+			"Name": "AdvancedPlugin",
 			"Type": "Runtime",
 			"LoadingPhase": "PreDefault"
+		},
+		{
+			"Name": "AdvancedPluginEditor",
+			"Type": "UncookedOnly",
+			"LoadingPhase": "PostEngineInit"
 		}
 	]
 }
