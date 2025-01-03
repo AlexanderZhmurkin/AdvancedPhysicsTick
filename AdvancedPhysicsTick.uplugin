@@ -18,7 +18,11 @@
 		{
 			"Name": "AdvancedPlugin",
 			"Type": "Runtime",
-			"LoadingPhase": "PreDefault"
+			"LoadingPhase": "PreDefault",
+			"PlatformAllowList": [
+				"Win64",
+				"Linux"
+			]
 		},
 		{
 			"Name": "AdvancedPluginEditor",
