@@ -1,9 +1,9 @@
 {
 	"FileVersion": 3,
 	"Version": 12,
-	"VersionName": "2.0",
+	"VersionName": "3.0",
 	"FriendlyName": "Advanced Physics Tick",
-	"Description": "Simple and convenient integration of PhysicThread Chaos (For Vehicles)",
+	"Description": "Simple and convenient integration of ChaosPhysics",
 	"Category": "Physics",
 	"CreatedBy": "Alexander",
 	"CreatedByURL": "https://github.com/AlexanderZhmurkin/AdvancedPhysicsTick",
@@ -12,20 +12,21 @@
 	"SupportURL": "",
 	"CanContainContent": true,
 	"Installed": true,
-	"IsBetaVersion": true,
+	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
 	"Modules": [
 		{
-			"Name": "AdvancedPlugin",
+			"Name": "AdvancedPhysics",
 			"Type": "Runtime",
 			"LoadingPhase": "PreDefault",
 			"PlatformAllowList": [
 				"Win64",
+				"Android",
 				"Linux"
 			]
 		},
 		{
-			"Name": "AdvancedPluginEditor",
+			"Name": "AdvancedPhysicsEditor",
 			"Type": "UncookedOnly",
 			"LoadingPhase": "PostEngineInit"
 		}
