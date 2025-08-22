@@ -36,7 +36,7 @@ Repository Branches
 This repository uses the following several branches and tags:
 
 * main: Main branch for developing, maybe with errors and inconsistencies.
-* old-release-X.X: Legacy branches for older releases (e.g., old-release-1.0, old-release-2.0). These are considered deprecated, and users are strongly encouraged to transition to the main branch for the most up-to-date features. **Will be removed in the future**
+* old-release-X.X: Legacy branches for older releases (e.g., old-release-1.0, old-release-2.0). These are considered deprecated, and users are strongly encouraged to transition to the main branch or release tags for the most up-to-date features. **Will be removed in the future**
 
 Tags:
 
