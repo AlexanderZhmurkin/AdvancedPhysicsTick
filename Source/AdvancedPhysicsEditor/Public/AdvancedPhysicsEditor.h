@@ -1,4 +1,5 @@
-// Copyright Alexander. All Rights Reserved.
+// Fill out your copyright notice in the Description page of Project Settings.
+// Created by: Alexander Zhmurkin
 
 #pragma once
 
@@ -7,7 +8,7 @@
 #include "Modules/ModuleManager.h"
 #include "PhysicsInterfaceDeclaresCore.h"
 
-class IAdvancedPluginEditorModule : public IModuleInterface
+class IAdvancedPhysicsEditorModule : public IModuleInterface
 {
 public:
 	/** IModuleInterface implementation */

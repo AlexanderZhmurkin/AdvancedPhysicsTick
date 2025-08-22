@@ -1,13 +1,14 @@
-// Copyright Alexander. All Rights Reserved.
+// Fill out your copyright notice in the Description page of Project Settings.
+// Created by: Alexander Zhmurkin
 
 using UnrealBuildTool;
 
-public class AdvancedPluginEditor : ModuleRules
+public class AdvancedPhysicsEditor : ModuleRules
 {
-    public AdvancedPluginEditor(ReadOnlyTargetRules Target) : base(Target)
+    public AdvancedPhysicsEditor(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-
+        
         PublicDependencyModuleNames.AddRange(
             new string[]
             {
@@ -17,7 +18,7 @@ public class AdvancedPluginEditor : ModuleRules
                 "SlateCore",
                 "Engine",
                 "EditorFramework",
-                "AdvancedPlugin"
+                "AdvancedPhysics"
             });
 
         PrivateDependencyModuleNames.AddRange(
