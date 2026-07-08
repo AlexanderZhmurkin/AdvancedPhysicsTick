@@ -1,0 +1,45 @@
+{
+	"FileVersion": 3,
+	"Version": 12,
+	"VersionName": "3.0",
+	"FriendlyName": "Advanced Vehicle Framework",
+	"Description": "Make simple vehicle simulation and convenient integration of Chaos Physics",
+	"Category": "Physics",
+	"CreatedBy": "Alexander",
+	"CreatedByURL": "https://github.com/AlexanderZhmurkin/AdvancedVehicle",
+	"DocsURL": "https://github.com/AlexanderZhmurkin/AdvancedVehicle/README.md",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"Installed": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Modules": [
+		{
+			"Name": "AdvancedVehicle",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault",
+			"PlatformAllowList": [
+				"Win64",
+				"Android",
+				"Linux"
+			]
+		},
+		{
+			"Name": "AdvancedVehicleEditor",
+			"Type": "UncookedOnly",
+			"LoadingPhase": "PostEngineInit"
+		},
+		{
+			"Name": "AdvancedVehicleSlate",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "EnhancedInput",
+			"Enabled": true
+		}
+	]
+}

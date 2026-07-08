@@ -12,6 +12,13 @@ Key features include thread-safe physics operations, detailed state queries for 
 Important notice for version 3.0 and up.
 =====================
 
+1. Renaming plugin
+
+Before called name "AdvancedPhysicsTick"
+After called name "AdvancedVehicle" - accent more for tools for vehicle physics simulation
+
+2. API inconsistency
+
 Starting with version 3.0, the plugin modules have been completely rewritten from *ADVANCEDPLUGIN_API* to *ADVANCEDPHYSICS_API*, to unify names and improve consistency. This change may cause compatibility issues when upgrading from older versions (2.X - 1.X). Be sure to check and update your project configurations and code, especially Blueprints in editor, as there may be issues with reparenting after compiling the plugin to match the new module structure.
 
 **Blueprint Reparenting Instructions:** To safely transition Blueprints using **AAdvancedPawn** to version 3.0, follow these steps to avoid errors:
